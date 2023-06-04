@@ -8,7 +8,35 @@ namespace noise
 
 #pragma region Simplex
 
-	float Simplex::evaluate(float x) { return 0; }
+	float Simplex::evaluate(float x) 
+    {
+        float n0, n1;   // Noise contributions from the two "corners"
+
+        // No need to skew the input space in 1D
+
+        // Corners coordinates (nearest integer values):
+        int i0 = fast_floor(x);
+        int i1 = i0 + 1;
+        // Distances to corners (between 0 and 1):
+        float x0 = x - i0;
+        float x1 = x0 - 1.0f;
+
+        // Calculate the contribution from the first corner
+        float t0 = 1.0f - x0 * x0;
+        //  if(t0 < 0.0f) t0 = 0.0f; // not possible
+        t0 *= t0;
+        n0 = t0 * t0 * grad(i0, x0);
+
+        // Calculate the contribution from the second corner
+        float t1 = 1.0f - x1 * x1;
+        //  if(t1 < 0.0f) t1 = 0.0f; // not possible
+        t1 *= t1;
+        n1 = t1 * t1 * grad(i1, x1);
+
+        // The maximum value of this noise is 8*(3/4)^4 = 2.53125
+        // A factor of 0.395 scales to fit exactly within [-1,1]
+        return 0.395f * (n0 + n1);
+    }
 
 	float Simplex::evaluate(float x, float y) 
     {
